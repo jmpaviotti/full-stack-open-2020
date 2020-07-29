@@ -4,9 +4,10 @@ import ReactDOM from "react-dom";
 const Button = (props) => <button onClick={props.handler}>{props.text}</button>;
 
 const Statistic = (props) => (
-  <p>
-    {props.text} {props.value}
-  </p>
+  <tr>
+    <td>{props.text}</td>
+    <td>{props.value}</td>
+  </tr>
 );
 
 const Statistics = (props) => {
@@ -25,14 +26,16 @@ const Statistics = (props) => {
   };
 
   return (
-    <div>
-      <Statistic text="good" value={good} />
-      <Statistic text="neutral" value={neutral} />
-      <Statistic text="bad" value={bad} />
-      <Statistic text="all" value={data.total} />
-      <Statistic text="average" value={data.average} />
-      <Statistic text="positive" value={data.positive + " %"} />
-    </div>
+    <table>
+      <tbody>
+        <Statistic text="good" value={good} />
+        <Statistic text="neutral" value={neutral} />
+        <Statistic text="bad" value={bad} />
+        <Statistic text="all" value={data.total} />
+        <Statistic text="average" value={data.average} />
+        <Statistic text="positive" value={data.positive + " %"} />
+      </tbody>
+    </table>
   );
 };
 
