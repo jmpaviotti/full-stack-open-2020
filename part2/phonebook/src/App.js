@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Filter from './components/Filter';
 import EntryForm from './components/EntryForm';
 import Persons from './components/Persons';
+import personService from './services/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -30,21 +30,46 @@ const App = () => {
 
   const addEntry = (event) => {
     event.preventDefault();
+    const newEntry = { name: newName, number: newNumber };
+    const isUnique = persons.find((el) => el.name === newEntry.name);
 
-    if (persons.some((element) => element.name === newName)) {
-      window.alert(`${newName} is already in phonebook.`);
+    if (isUnique) {
+      const id = isUnique.id;
+      if (
+        window.confirm(
+          `${newName} is already in phonebook, do you want to replace the old phone number with a new one?`
+        )
+      ) {
+        personService.update(newEntry, id).then((returnedEntry) => {
+          setPersons(
+            persons.map((person) => (person.id !== id ? person : returnedEntry))
+          );
+          setNewName('');
+          setNewNumber('');
+        });
+      }
     } else {
-      const entry = { name: newName, number: newNumber };
-      setPersons(persons.concat(entry));
-      setNewName('');
-      setNewNumber('');
+      personService.add(newEntry).then((returnedEntry) => {
+        setPersons(persons.concat(returnedEntry));
+        setNewName('');
+        setNewNumber('');
+      });
+    }
+  };
+
+  // Handler for removing a single person
+  const removePersonHandler = (person) => {
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personService.remove(person.id).then((returned) => {
+        setPersons(persons.filter((el) => el.id !== person.id));
+      });
     }
   };
 
   // Fetch initial data
   useEffect(() => {
-    axios.get('http://localhost:3001/persons').then((response) => {
-      setPersons(response.data);
+    personService.getAll().then((baseData) => {
+      setPersons(baseData);
     });
   }, []);
 
@@ -66,7 +91,7 @@ const App = () => {
 
       <h2>Numbers</h2>
 
-      <Persons array={personsToShow} />
+      <Persons array={personsToShow} handler={removePersonHandler} />
     </div>
   );
 };
