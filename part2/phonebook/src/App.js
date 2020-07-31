@@ -1,20 +1,16 @@
-import React, { useState } from "react";
-import Filter from "./components/Filter";
-import EntryForm from "./components/EntryForm";
-import Persons from "./components/Persons";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import Filter from './components/Filter';
+import EntryForm from './components/EntryForm';
+import Persons from './components/Persons';
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456" },
-    { name: "Ada Lovelace", number: "39-44-5323523" },
-    { name: "Dan Abramov", number: "12-43-234345" },
-    { name: "Mary Poppendieck", number: "39-23-6423122" },
-  ]);
-  const [filter, setFilter] = useState("");
-  const [newName, setNewName] = useState("");
-  const [newNumber, setNewNumber] = useState("");
+  const [persons, setPersons] = useState([]);
+  const [filter, setFilter] = useState('');
+  const [newName, setNewName] = useState('');
+  const [newNumber, setNewNumber] = useState('');
 
-  // Search bar
+  // Search bar functions
   const handleFilterChange = (event) => {
     setFilter(event.target.value.toLowerCase());
   };
@@ -23,7 +19,7 @@ const App = () => {
     (person) => person.name.toLowerCase().indexOf(filter) !== -1
   );
 
-  // Input Form
+  // Input Form functions
   const handleNameChange = (event) => {
     setNewName(event.target.value);
   };
@@ -40,11 +36,17 @@ const App = () => {
     } else {
       const entry = { name: newName, number: newNumber };
       setPersons(persons.concat(entry));
-      setNewName("");
-      setNewNumber("");
+      setNewName('');
+      setNewNumber('');
     }
   };
-  //
+
+  // Fetch initial data
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons').then((response) => {
+      setPersons(response.data);
+    });
+  }, []);
 
   return (
     <div>
