@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Notification from './components/Notification';
 import Filter from './components/Filter';
 import EntryForm from './components/EntryForm';
 import Persons from './components/Persons';
@@ -6,6 +7,8 @@ import personService from './services/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
+  const [message, setMessage] = useState(null);
+  const [messageColor, setMessageColor] = useState('');
   const [filter, setFilter] = useState('');
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
@@ -40,17 +43,41 @@ const App = () => {
           `${newName} is already in phonebook, do you want to replace the old phone number with a new one?`
         )
       ) {
-        personService.update(newEntry, id).then((returnedEntry) => {
-          setPersons(
-            persons.map((person) => (person.id !== id ? person : returnedEntry))
-          );
-          setNewName('');
-          setNewNumber('');
-        });
+        personService
+          .update(newEntry, id)
+          .then((returnedEntry) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== id ? person : returnedEntry
+              )
+            );
+            setMessageColor('green');
+            setMessage(`Updated ${newEntry.name}`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+            setNewName('');
+            setNewNumber('');
+          })
+          .catch((error) => {
+            setMessageColor('red');
+            setMessage(
+              `Entry for '${newEntry.name}' has already been removed from server`
+            );
+            setTimeout(() => {
+              setMessage(null);
+            }, 5000);
+            setPersons(persons.filter((el) => el.id !== id));
+          });
       }
     } else {
       personService.add(newEntry).then((returnedEntry) => {
         setPersons(persons.concat(returnedEntry));
+        setMessageColor('green');
+        setMessage(`Added ${newEntry.name}`);
+        setTimeout(() => {
+          setMessage(null);
+        }, 5000);
         setNewName('');
         setNewNumber('');
       });
@@ -76,6 +103,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+
+      <Notification message={message} color={messageColor} />
 
       <Filter value={filter} handler={handleFilterChange} />
 
