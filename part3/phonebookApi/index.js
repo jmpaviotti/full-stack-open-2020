@@ -34,7 +34,7 @@ app.get('/api/persons', (req, res) => {
   });
 });
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const { name, number } = req.body;
 
   if (!name || !number) {
@@ -48,9 +48,12 @@ app.post('/api/persons', (req, res) => {
     number,
   });
 
-  entry.save().then((result) => {
-    res.json(result);
-  });
+  entry
+    .save()
+    .then((result) => {
+      res.json(result);
+    })
+    .catch((error) => next(error));
 });
 
 // Operations with individual id
@@ -70,7 +73,10 @@ app.put('/api/persons/:id', (req, res, next) => {
   const { name, number } = req.body;
   const person = { name, number };
 
-  Person.findByIdAndUpdate(req.params.id, person, { new: true })
+  Person.findByIdAndUpdate(req.params.id, person, {
+    new: true,
+    runValidators: true,
+  })
     .then((updatedPerson) => {
       res.json(updatedPerson);
     })
@@ -97,6 +103,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformed id' });
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message });
   }
 
   next(error);

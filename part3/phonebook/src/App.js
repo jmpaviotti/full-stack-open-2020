@@ -71,16 +71,25 @@ const App = () => {
           });
       }
     } else {
-      personService.add(newEntry).then((returnedEntry) => {
-        setPersons(persons.concat(returnedEntry));
-        setMessageColor('green');
-        setMessage(`Added ${newEntry.name}`);
-        setTimeout(() => {
-          setMessage(null);
-        }, 5000);
-        setNewName('');
-        setNewNumber('');
-      });
+      personService
+        .add(newEntry)
+        .then((returnedEntry) => {
+          setPersons(persons.concat(returnedEntry));
+          setMessageColor('green');
+          setMessage(`Added ${newEntry.name}`);
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+          setNewName('');
+          setNewNumber('');
+        })
+        .catch((error) => {
+          setMessageColor('red');
+          setMessage(error.response.data.error);
+          setTimeout(() => {
+            setMessage(null);
+          }, 5000);
+        });
     }
   };
 
