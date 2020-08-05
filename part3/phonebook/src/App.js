@@ -61,13 +61,10 @@ const App = () => {
           })
           .catch((error) => {
             setMessageColor('red');
-            setMessage(
-              `Entry for '${newEntry.name}' has already been removed from server`
-            );
+            setMessage(error.response.data.error);
             setTimeout(() => {
               setMessage(null);
             }, 5000);
-            setPersons(persons.filter((el) => el.id !== id));
           });
       }
     } else {
