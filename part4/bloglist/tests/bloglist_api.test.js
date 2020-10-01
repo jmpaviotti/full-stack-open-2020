@@ -5,6 +5,7 @@ const app = require('../app')
 const api = supertest(app)
 
 const Blog = require('../models/blog')
+const { getAllBlogs } = require('./test_helper')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -77,6 +78,36 @@ test('if title/url property is missing, backend responds with status code 400 Ba
     .post('/api/blogs')
     .send(newEntry)
     .expect(400)
+})
+
+test('DELETE request to an entry\'s id successfully removes said entry from database (status code 204)', async () => {
+  const startingList = await helper.getAllBlogs()
+  const entryToDelete = startingList[0]
+
+  await api
+    .delete(`/api/blogs/${entryToDelete.id}`)
+    .expect(204)
+
+  const finalList = await getAllBlogs()
+  expect(finalList).toHaveLength(startingList.length - 1)
+
+  const titles = finalList.map( entry => entry.title)
+  expect(titles).not.toContain(entryToDelete.title)
+})
+
+test('PUT request to an entry\'s id successfully updates listed likes in database', async () => {
+  const startingList = await helper.getAllBlogs()
+
+  const entryToUpdate = startingList[0]
+  entryToUpdate.likes = 15
+
+  await api
+    .put(`/api/blogs/${entryToUpdate.id}`)
+    .send(entryToUpdate)
+    .expect('Content-Type', /application\/json/)
+
+  const finalList = await getAllBlogs()
+  expect(finalList[0].likes).toBe(15)
 })
 
 afterAll(() => {
