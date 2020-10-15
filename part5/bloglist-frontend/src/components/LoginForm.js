@@ -1,6 +1,12 @@
-import React from "react";
+import React from 'react'
 
-const LoginForm = ({ username, password, usernameHandler, passwordHandler, handleLogin }) => {
+const LoginForm = ({
+  username,
+  password,
+  usernameHandler,
+  passwordHandler,
+  handleLogin
+}) => {
   return (
     <form onSubmit={handleLogin}>
       <div>
@@ -26,4 +32,4 @@ const LoginForm = ({ username, password, usernameHandler, passwordHandler, handl
   )
 }
 
-export default LoginForm;
+export default LoginForm
